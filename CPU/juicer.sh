@@ -240,9 +240,11 @@ fi
 if [ ! -z "$threads" ]
 then
     threadstring="-t $threads"
+    threadstring_sort="-N $threads"
 else
     threads="$(getconf _NPROCESSORS_ONLN)"
     threadstring="-t $threads"
+    threadstring_sort="-N $threads"
 fi
 
 ## Directories to be created and regex strings for listing files
@@ -395,7 +397,7 @@ then
 	fi
     done
     # sort read 1 aligned file by readname
-    sort -T $tmpdir -k1,1 $name1$ext.sam > $name1${ext}_sort.sam
+    sort $threadstring_sort -T $tmpdir -k1,1 $name1$ext.sam > $name1${ext}_sort.sam
     if [ $? -ne 0 ]
     then
         echo "***! Error while sorting $name1$ext.sam"
@@ -404,7 +406,7 @@ then
         echo "(-: Sort read 1 aligned file by readname completed."
     fi
     # sort read 2 aligned file by readname
-    sort -T $tmpdir -k1,1 $name2$ext.sam > $name2${ext}_sort.sam
+    sort $threadstring_sort -T $tmpdir -k1,1 $name2$ext.sam > $name2${ext}_sort.sam
     if [ $? -ne 0 ]
     then
         echo "***! Error while sorting $name2$ext.sam"
@@ -416,7 +418,7 @@ then
     awk 'BEGIN{OFS="\t"}NF>=11{$1=$1"/1"; print}' $name1${ext}_sort.sam > $name1${ext}_sort1.sam
     awk 'BEGIN{OFS="\t"}NF>=11{$1=$1"/2"; print}' $name2${ext}_sort.sam > $name2${ext}_sort1.sam
     
-    sort -T $tmpdir -k1,1 -m $name1${ext}_sort1.sam $name2${ext}_sort1.sam > ${name}${ext}.sam
+    sort $threadstring_sort -T $tmpdir -k1,1 -m $name1${ext}_sort1.sam $name2${ext}_sort1.sam > ${name}${ext}.sam
     
     if [ $? -ne 0 ]
     then
@@ -455,7 +457,7 @@ then
         exit 1
     fi                              
      # sort by chromosome, fragment, strand, and position                    
-    sort -T $tmpdir -k2,2d -k6,6d -k4,4n -k8,8n -k1,1n -k5,5n -k3,3n $name${ext}.frag.txt > $name${ext}.sort.txt
+    sort $threadstring_sort -T $tmpdir -k2,2d -k6,6d -k4,4n -k8,8n -k1,1n -k5,5n -k3,3n $name${ext}.frag.txt > $name${ext}.sort.txt
     if [ $? -ne 0 ]
     then
         echo "***! Failure during sort of $name${ext}"
@@ -472,7 +474,7 @@ then
     then
         mv $donesplitdir/* $splitdir/.
     fi
-    if ! sort -T $tmpdir -m -k2,2d -k6,6d -k4,4n -k8,8n -k1,1n -k5,5n -k3,3n $splitdir/*.sort.txt  > $outputdir/merged_sort.txt
+    if ! sort $threadstring_sort -T $tmpdir -m -k2,2d -k6,6d -k4,4n -k8,8n -k1,1n -k5,5n -k3,3n $splitdir/*.sort.txt  > $outputdir/merged_sort.txt
     then 
         echo "***! Some problems occurred somewhere in creating sorted align files."
         exit 1
