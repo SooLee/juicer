@@ -240,11 +240,11 @@ fi
 if [ ! -z "$threads" ]
 then
     threadstring="-t $threads"
-    threadstring_sort="-N $threads"
+    threadstring_sort="--parallel $threads"
 else
     threads="$(getconf _NPROCESSORS_ONLN)"
     threadstring="-t $threads"
-    threadstring_sort="-N $threads"
+    threadstring_sort="--parallel $threads"
 fi
 
 ## Directories to be created and regex strings for listing files
